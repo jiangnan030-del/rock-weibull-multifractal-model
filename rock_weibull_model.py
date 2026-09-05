@@ -62,7 +62,6 @@ def default_demo_peak() -> PeakState:
     return PeakState(E=15000.0, nu=0.25, sigma3=0.0, sigma1c=35.0, epsilon1c=0.004, phi_deg=35.0)
 
 
-
 def mohr_coulomb_microelement_strength(
     epsilon1: float,
     sigma1: float,
@@ -80,21 +79,29 @@ def mohr_coulomb_microelement_strength(
     return numerator / denominator
 
 
-
 def solve_weibull_parameters(peak: PeakState, lambda_value: float) -> WeibullParameters:
-    """Solve m and F0 from equations (19) and (18)."""
+    """Solve m and F0 from equations (19) and (18).
+
+    A physical Weibull solution requires 0 < lambda < 1 and 0 < R < 1,
+    where R is the logarithm argument in equation (18).
+    """
+    if not 0.0 < lambda_value < 1.0:
+        raise ValueError("lambda must satisfy 0 < lambda < 1")
+
     numerator = peak.sigma1c - 2.0 * peak.nu * peak.sigma3
     denom = numerator + (lambda_value - 1.0) * peak.E * peak.epsilon1c
     if abs(denom) < 1e-12:
         raise ZeroDivisionError("Equation denominator is too close to zero")
 
     log_argument = denom / (peak.E * peak.epsilon1c * lambda_value)
-    if log_argument <= 0.0 or math.isclose(log_argument, 1.0, rel_tol=0.0, abs_tol=1e-12):
+    if not 0.0 < log_argument < 1.0:
         raise ValueError(
-            "Invalid logarithm argument from the peak-state inputs; choose physically consistent values"
+            "Physical solution requires the equation (18) logarithm argument R to satisfy 0 < R < 1"
         )
 
     m = -(numerator / denom) / math.log(log_argument)
+    if not math.isfinite(m) or m <= 0.0:
+        raise ValueError("Solved Weibull shape parameter m must be positive and finite")
 
     Fc = mohr_coulomb_microelement_strength(
         epsilon1=peak.epsilon1c,
@@ -106,13 +113,13 @@ def solve_weibull_parameters(peak: PeakState, lambda_value: float) -> WeibullPar
     )
     ratio_power_m = -math.log(log_argument)
     F0 = Fc / (ratio_power_m ** (1.0 / m))
+    if not math.isfinite(F0) or F0 <= 0.0:
+        raise ValueError("Solved Weibull scale parameter F0 must be positive and finite")
     return WeibullParameters(m=m, F0=F0)
-
 
 
 def damage_variable(F: float, m: float, F0: float) -> float:
     return 1.0 - math.exp(-((F / F0) ** m))
-
 
 
 def axial_stress_from_F(F: float, peak: PeakState, lambda_value: float, params: WeibullParameters) -> tuple[float, float]:
@@ -132,7 +139,6 @@ def axial_stress_from_F(F: float, peak: PeakState, lambda_value: float, params: 
     epsilon1 = (F - correction) / (peak.E * (1.0 - sin_phi))
     sigma1 = peak.E * epsilon1 * factor + 2.0 * peak.nu * peak.sigma3
     return epsilon1, sigma1
-
 
 
 def stress_strain_curve(
@@ -162,7 +168,6 @@ def stress_strain_curve(
     return values
 
 
-
 def save_rows_csv(rows: Iterable[RelativeDimensionRow], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
@@ -172,7 +177,6 @@ def save_rows_csv(rows: Iterable[RelativeDimensionRow], path: Path) -> None:
             writer.writerow([row.spacing_cm, row.lambda_value, row.m, row.F0_MPa])
 
 
-
 def save_curve_csv(curve: list[tuple[float, float]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
@@ -180,7 +184,6 @@ def save_curve_csv(curve: list[tuple[float, float]], path: Path) -> None:
         writer.writerow(["epsilon1", "sigma1_MPa"])
         for epsilon1, sigma1 in curve:
             writer.writerow([epsilon1, sigma1])
-
 
 
 def plot_parameter_vs_spacing(rows: list[RelativeDimensionRow], attribute: str, ylabel: str, out_path: Path) -> None:
@@ -196,7 +199,6 @@ def plot_parameter_vs_spacing(rows: list[RelativeDimensionRow], attribute: str, 
     plt.tight_layout()
     plt.savefig(out_path, dpi=200)
     plt.close()
-
 
 
 def plot_stress_strain_family(
@@ -224,7 +226,6 @@ def plot_stress_strain_family(
     plt.tight_layout()
     plt.savefig(out_path, dpi=200)
     plt.close()
-
 
 
 def build_demo_outputs(base_dir: Path, peak: PeakState | None = None) -> None:
@@ -265,7 +266,6 @@ def build_demo_outputs(base_dir: Path, peak: PeakState | None = None) -> None:
             save_curve_csv(curve, curve_dir / file_name)
 
 
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Python implementation of the rock-strength Weibull model based on multifractal damage."
@@ -285,7 +285,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-
 def peak_from_args(args: argparse.Namespace) -> PeakState:
     return PeakState(
         E=args.E,
@@ -295,7 +294,6 @@ def peak_from_args(args: argparse.Namespace) -> PeakState:
         epsilon1c=args.epsilon1c,
         phi_deg=args.phi_deg,
     )
-
 
 
 def run_solve_mode(peak: PeakState, lambda_values: list[float]) -> None:
@@ -312,7 +310,6 @@ def run_solve_mode(peak: PeakState, lambda_values: list[float]) -> None:
     print(json.dumps(results, ensure_ascii=False, indent=2))
 
 
-
 def run_curve_mode(
     peak: PeakState,
     lambda_values: list[float],
@@ -327,7 +324,6 @@ def run_curve_mode(
         file_name = f"curve_lambda_{str(lambda_value).replace('.', '_')}.csv"
         save_curve_csv(curve, outdir / file_name)
         print(f"Saved {file_name}")
-
 
 
 def main() -> None:
