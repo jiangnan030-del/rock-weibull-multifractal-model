@@ -96,6 +96,17 @@ This repository is a Python implementation of the paper:
 - `curves/`: generated stress-strain curve CSV files
 - `figures/`: generated example plots
 
+### Example figures
+
+SVG exports are included for easier preview on GitHub:
+
+- `figures/table3_m_vs_spacing.svg`
+- `figures/table3_F0_vs_spacing.svg`
+- `figures/table4_m_vs_spacing.svg`
+- `figures/table4_F0_vs_spacing.svg`
+- `figures/stress_strain_table3.svg`
+- `figures/stress_strain_table4.svg`
+
 ### Dependencies
 
 - Python 3.10+
