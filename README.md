@@ -17,6 +17,16 @@
 
 > 说明：论文页面提供了核心公式和表格，但没有给出所有图的完整实验参数，因此仓库中保留了一个可替换的 demo 参数组，方便后续替换为你自己的实验数据。
 
+### 微裂纹网络图
+
+下图由 `generate_microcrack_figure.py` 根据表 1 的两组微裂纹产状分布生成，并以仓库内上传的 SVG 图片展示五种间距：
+
+![不同间距下的三维微裂纹网络](figures/figure1_microcrack_networks.svg)
+
+```bash
+python3 generate_microcrack_figure.py
+```
+
 ### 快速运行
 
 ```bash
@@ -131,42 +141,42 @@ $$
 岩石微元强度 $F$ 的 Weibull 概率密度：
 
 $$
-p(F)=\frac{m}{F_0}\left(\frac{F}{F_0}\right)^{m-1}
-\exp\left[-\left(\frac{F}{F_0}\right)^m\right]
+p(F)=\frac{m}{F_0}\bigl(\frac{F}{F_0}\bigr)^{m-1}
+\exp\bigl[-\bigl(\frac{F}{F_0}\bigr)^m\bigr]
 $$
 
 由累计破坏概率得到损伤变量：
 
 $$
 D=\int_0^F p(x)\,\mathrm{d}x
-=1-\exp\left[-\left(\frac{F}{F_0}\right)^m\right]
+=1-\exp\bigl[-\bigl(\frac{F}{F_0}\bigr)^m\bigr]
 $$
 
 等围压条件下，Mohr–Coulomb 微元强度为：
 
 $$
-F=\frac{E\varepsilon_1\left[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi\right]}
+F=\frac{E\varepsilon_1\bigl[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi\bigr]}
 {\sigma_1-2\nu\sigma_3}
 $$
 
 对应的轴向应力本构式：
 
 $$
-\sigma_1=E\varepsilon_1\left\{\lambda
-\exp\left[-\left(\frac{F}{F_0}\right)^m\right]+1-\lambda\right\}
+\sigma_1=E\varepsilon_1\bigl\{\lambda
+\exp\bigl[-\bigl(\frac{F}{F_0}\bigr)^m\bigr]+1-\lambda\bigr\}
 +2\nu\sigma_3
 $$
 
 为便于代码生成参数曲线，令
 
 $$
-A(F)=\lambda\exp\left[-\left(\frac{F}{F_0}\right)^m\right]+1-\lambda
+A(F)=\lambda\exp\bigl[-\bigl(\frac{F}{F_0}\bigr)^m\bigr]+1-\lambda
 $$
 
 联立前两式可写成参数形式：
 
 $$
-\varepsilon_1(F)=\frac{F-\dfrac{\sigma_3\left[2\nu(1-\sin\varphi)-(1+\sin\varphi)\right]}{A(F)}}
+\varepsilon_1(F)=\frac{F-\dfrac{\sigma_3\bigl[2\nu(1-\sin\varphi)-(1+\sin\varphi)\bigr]}{A(F)}}
 {E(1-\sin\varphi)}
 $$
 
@@ -181,20 +191,20 @@ $$
 $$
 \begin{aligned}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-={}&E\left\{\lambda e^{-(F/F_0)^m}+1-\lambda\right\}\\
+={}&E\bigl\{\lambda e^{-(F/F_0)^m}+1-\lambda\bigr\}\\
 &+E\varepsilon_1\lambda e^{-(F/F_0)^m}
-\left(-\frac{mF^{m-1}}{F_0^m}\right)\\
-&\times\left\{
+\bigl(-\frac{mF^{m-1}}{F_0^m}\bigr)\\
+&\times\bigl\{
 \frac{E[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi]}
 {\sigma_1-2\nu\sigma_3}
 +\frac{E\varepsilon_1(1-\sin\varphi)}{\sigma_1-2\nu\sigma_3}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-\right.\\
-&\qquad\left.
+\\
+&\qquad
 -\frac{E\varepsilon_1[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi]}
 {(\sigma_1-2\nu\sigma_3)^2}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-\right\}.
+\bigr\}.
 \end{aligned}
 $$
 
@@ -204,16 +214,16 @@ $$
 \sigma_1=\sigma_{1c},\qquad
 \varepsilon_1=\varepsilon_{1c},\qquad
 F=F_c,\qquad
-\left.\frac{\partial\sigma_1}{\partial\varepsilon_1}\right|_c=0
+\frac{\partial\sigma_1}{\partial\varepsilon_1}\bigg|_c=0
 $$
 
 因此：
 
 $$
 \begin{aligned}
-0={}&E\left\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\right\}\\
+0={}&E\bigl\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\bigr\}\\
 &+E\varepsilon_{1c}\lambda e^{-(F_c/F_0)^m}
-\left(-\frac{mF_c^{m-1}}{F_0^m}\right)
+\bigl(-\frac{mF_c^{m-1}}{F_0^m}\bigr)
 \frac{E[(\sigma_{1c}-\sigma_3)-(\sigma_{1c}+\sigma_3)\sin\varphi]}
 {\sigma_{1c}-2\nu\sigma_3}.
 \end{aligned}
@@ -238,7 +248,7 @@ $$
 
 $$
 \sigma_{1c}=E\varepsilon_{1c}
-\left\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\right\}
+\bigl\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\bigr\}
 +2\nu\sigma_3
 $$
 
@@ -270,7 +280,7 @@ $$
 则：
 
 $$
-\left(\frac{F_c}{F_0}\right)^m=-\ln R
+\bigl(\frac{F_c}{F_0}\bigr)^m=-\ln R
 $$
 
 $$
