@@ -1,0 +1,36 @@
+name: Publish microcrack figure and fix README math
+on:
+  push:
+    branches: [main]
+    paths:
+      - generate_microcrack_figure.py
+      - .github/workflows/publish-microcrack-figure.yml
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy matplotlib
+      - run: python generate_microcrack_figure.py
+      - name: Fix unsupported delimiters and add image
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('README.md'); s=p.read_text()
+          for a,b in [('\\left\\{','\\bigl\\{'),('\\right\\}','\\bigr\\}'),('\\left[','\\bigl['),('\\right]','\\bigr]'),('\\left(','\\bigl('),('\\right)','\\bigr)'),('\\left.',''),('\\right.','')]: s=s.replace(a,b)
+          s=s.replace('\\frac{\\partial\\sigma_1}{\\partial\\varepsilon_1}\\right|_c=0','\\frac{\\partial\\sigma_1}{\\partial\\varepsilon_1}\\bigg|_c=0')
+          anchor='\n### 快速运行\n'
+          block='\n### 微裂纹网络图\n\n下图由 `generate_microcrack_figure.py` 根据表 1 的两组微裂纹产状分布生成，并以仓库内上传的 SVG 图片展示五种间距：\n\n![不同间距下的三维微裂纹网络](figures/figure1_microcrack_networks.svg)\n\n```bash\npython3 generate_microcrack_figure.py\n```\n'
+          if 'figure1_microcrack_networks.svg' not in s: s=s.replace(anchor,block+anchor,1)
+          p.write_text(s)
+          PY
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add README.md figures/figure1_microcrack_networks.svg
+          git diff --cached --quiet || (git commit -m 'Render README math and add microcrack network image' && git push)
