@@ -100,6 +100,7 @@ This repository is a Python implementation of the paper:
 
 - Python 3.10+
 - matplotlib
+- pandas
 
 ### Next possible extensions
 
