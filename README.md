@@ -141,42 +141,42 @@ $$
 岩石微元强度 $F$ 的 Weibull 概率密度：
 
 $$
-p(F)=\frac{m}{F_0}\Big(\frac{F}{F_0}\Big)^{m-1}
-\exp\!\Big[-\Big(\frac{F}{F_0}\Big)^m\Big]
+p(F)=\frac{m}{F_0}\left(\frac{F}{F_0}\right)^{m-1}
+\exp\left[-\left(\frac{F}{F_0}\right)^m\right]
 $$
 
 由累计破坏概率得到损伤变量：
 
 $$
 D=\int_0^F p(x)\,\mathrm{d}x
-=1-\exp\!\Big[-\Big(\frac{F}{F_0}\Big)^m\Big]
+=1-\exp\left[-\left(\frac{F}{F_0}\right)^m\right]
 $$
 
 等围压条件下，Mohr–Coulomb 微元强度为：
 
 $$
-F=\frac{E\varepsilon_1\big[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi\big]}
+F=\frac{E\varepsilon_1\left[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi\right]}
 {\sigma_1-2\nu\sigma_3}
 $$
 
 对应的轴向应力本构式：
 
 $$
-\sigma_1=E\varepsilon_1\big\{\lambda
-\exp\!\Big[-\Big(\frac{F}{F_0}\Big)^m\Big]+1-\lambda\big\}
+\sigma_1=E\varepsilon_1\{\lambda
+\exp\left[-\left(\frac{F}{F_0}\right)^m\right]+1-\lambda\}
 +2\nu\sigma_3
 $$
 
 为便于代码生成参数曲线，令
 
 $$
-A(F)=\lambda\exp\!\Big[-\Big(\frac{F}{F_0}\Big)^m\Big]+1-\lambda
+A(F)=\lambda\exp\left[-\left(\frac{F}{F_0}\right)^m\right]+1-\lambda
 $$
 
 联立前两式可写成参数形式：
 
 $$
-\varepsilon_1(F)=\frac{F-\dfrac{\sigma_3\big[2\nu(1-\sin\varphi)-(1+\sin\varphi)\big]}{A(F)}}
+\varepsilon_1(F)=\frac{F-\dfrac{\sigma_3[2\nu(1-\sin\varphi)-(1+\sin\varphi)]}{A(F)}}
 {E(1-\sin\varphi)}
 $$
 
@@ -191,10 +191,10 @@ $$
 $$
 \begin{aligned}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-={}&E\big\{\lambda e^{-(F/F_0)^m}+1-\lambda\big\}\\
+={}&E\{\lambda e^{-(F/F_0)^m}+1-\lambda\}\\
 &+E\varepsilon_1\lambda e^{-(F/F_0)^m}
-\Big(-\frac{mF^{m-1}}{F_0^m}\Big)\\
-&\times\big\{
+\left(-\frac{mF^{m-1}}{F_0^m}\right)\\
+&\times\{
 \frac{E[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi]}
 {\sigma_1-2\nu\sigma_3}
 +\frac{E\varepsilon_1(1-\sin\varphi)}{\sigma_1-2\nu\sigma_3}
@@ -204,7 +204,7 @@ $$
 -\frac{E\varepsilon_1[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi]}
 {(\sigma_1-2\nu\sigma_3)^2}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-\big\}.
+\}.
 \end{aligned}
 $$
 
@@ -214,16 +214,16 @@ $$
 \sigma_1=\sigma_{1c},\qquad
 \varepsilon_1=\varepsilon_{1c},\qquad
 F=F_c,\qquad
-\frac{\partial\sigma_1}{\partial\varepsilon_1}\Big|_c=0
+\left.\frac{\partial\sigma_1}{\partial\varepsilon_1}\right|_c=0
 $$
 
 因此：
 
 $$
 \begin{aligned}
-0={}&E\big\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\big\}\\
+0={}&E\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\}\\
 &+E\varepsilon_{1c}\lambda e^{-(F_c/F_0)^m}
-\Big(-\frac{mF_c^{m-1}}{F_0^m}\Big)
+\left(-\frac{mF_c^{m-1}}{F_0^m}\right)
 \frac{E[(\sigma_{1c}-\sigma_3)-(\sigma_{1c}+\sigma_3)\sin\varphi]}
 {\sigma_{1c}-2\nu\sigma_3}.
 \end{aligned}
@@ -248,7 +248,7 @@ $$
 
 $$
 \sigma_{1c}=E\varepsilon_{1c}
-\big\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\big\}
+\{\lambda e^{-(F_c/F_0)^m}+1-\lambda\}
 +2\nu\sigma_3
 $$
 
@@ -280,7 +280,7 @@ $$
 则：
 
 $$
-\Big(\frac{F_c}{F_0}\Big)^m=-\ln R
+\left(\frac{F_c}{F_0}\right)^m=-\ln R
 $$
 
 $$
