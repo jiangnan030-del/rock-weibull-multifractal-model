@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import argparse
+import csv
+import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
-import csv
-import math
 
 import matplotlib.pyplot as plt
 
@@ -50,6 +52,15 @@ TABLE4_SINGULARITY: list[RelativeDimensionRow] = [
     RelativeDimensionRow(0.3, 0.8165, 2.3544, 29.3504),
     RelativeDimensionRow(0.1, 0.9113, 2.2525, 31.6424),
 ]
+
+
+def default_demo_peak() -> PeakState:
+    """A configurable demo peak state for reproducing example outputs.
+
+    Replace these values with experiment-specific parameters when available.
+    """
+    return PeakState(E=15000.0, nu=0.25, sigma3=0.0, sigma1c=35.0, epsilon1c=0.004, phi_deg=35.0)
+
 
 
 def mohr_coulomb_microelement_strength(
@@ -162,6 +173,16 @@ def save_rows_csv(rows: Iterable[RelativeDimensionRow], path: Path) -> None:
 
 
 
+def save_curve_csv(curve: list[tuple[float, float]], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["epsilon1", "sigma1_MPa"])
+        for epsilon1, sigma1 in curve:
+            writer.writerow([epsilon1, sigma1])
+
+
+
 def plot_parameter_vs_spacing(rows: list[RelativeDimensionRow], attribute: str, ylabel: str, out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     xs = [r.spacing_cm for r in rows]
@@ -206,9 +227,12 @@ def plot_stress_strain_family(
 
 
 
-def build_demo_outputs(base_dir: Path) -> None:
+def build_demo_outputs(base_dir: Path, peak: PeakState | None = None) -> None:
+    peak = peak or default_demo_peak()
     data_dir = base_dir / "data"
     fig_dir = base_dir / "figures"
+    curve_dir = base_dir / "curves"
+
     save_rows_csv(TABLE3_RELATIVE_DIMENSION, data_dir / "table3_relative_dimension.csv")
     save_rows_csv(TABLE4_SINGULARITY, data_dir / "table4_singularity.csv")
 
@@ -217,27 +241,109 @@ def build_demo_outputs(base_dir: Path) -> None:
     plot_parameter_vs_spacing(TABLE4_SINGULARITY, "m", "m", fig_dir / "table4_m_vs_spacing.png")
     plot_parameter_vs_spacing(TABLE4_SINGULARITY, "F0_MPa", "F0 (MPa)", fig_dir / "table4_F0_vs_spacing.png")
 
-    # Demo peak-state parameters; replace with experiment-specific values when available.
-    demo_peak = PeakState(E=15000.0, nu=0.25, sigma3=0.0, sigma1c=35.0, epsilon1c=0.004, phi_deg=35.0)
     plot_stress_strain_family(
-        demo_peak,
+        peak,
         TABLE3_RELATIVE_DIMENSION,
         "Stress-strain family from Table 3",
         fig_dir / "stress_strain_table3.png",
     )
     plot_stress_strain_family(
-        demo_peak,
+        peak,
         TABLE4_SINGULARITY,
         "Stress-strain family from Table 4",
         fig_dir / "stress_strain_table4.png",
     )
 
+    for dataset_name, rows in {
+        "table3": TABLE3_RELATIVE_DIMENSION,
+        "table4": TABLE4_SINGULARITY,
+    }.items():
+        for row in rows:
+            params = WeibullParameters(m=row.m, F0=row.F0_MPa)
+            curve = stress_strain_curve(peak, row.lambda_value, params)
+            file_name = f"{dataset_name}_spacing_{str(row.spacing_cm).replace('.', '_')}.csv"
+            save_curve_csv(curve, curve_dir / file_name)
+
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Python implementation of the rock-strength Weibull model based on multifractal damage."
+    )
+    parser.add_argument("--mode", choices=["demo", "solve", "curve"], default="demo")
+    parser.add_argument("--outdir", default=None, help="Output directory. Defaults to the script directory.")
+    parser.add_argument("--lambda-values", nargs="+", type=float, default=[0.9293, 0.9906, 0.6578])
+    parser.add_argument("--curve-points", type=int, default=300)
+    parser.add_argument("--curve-max-factor", type=float, default=2.0)
+
+    parser.add_argument("--E", type=float, default=15000.0)
+    parser.add_argument("--nu", type=float, default=0.25)
+    parser.add_argument("--sigma3", type=float, default=0.0)
+    parser.add_argument("--sigma1c", type=float, default=35.0)
+    parser.add_argument("--epsilon1c", type=float, default=0.004)
+    parser.add_argument("--phi-deg", type=float, default=35.0)
+    return parser.parse_args()
+
+
+
+def peak_from_args(args: argparse.Namespace) -> PeakState:
+    return PeakState(
+        E=args.E,
+        nu=args.nu,
+        sigma3=args.sigma3,
+        sigma1c=args.sigma1c,
+        epsilon1c=args.epsilon1c,
+        phi_deg=args.phi_deg,
+    )
+
+
+
+def run_solve_mode(peak: PeakState, lambda_values: list[float]) -> None:
+    results = []
+    for lambda_value in lambda_values:
+        params = solve_weibull_parameters(peak, lambda_value)
+        results.append(
+            {
+                "lambda": lambda_value,
+                "m": params.m,
+                "F0_MPa": params.F0,
+            }
+        )
+    print(json.dumps(results, ensure_ascii=False, indent=2))
+
+
+
+def run_curve_mode(
+    peak: PeakState,
+    lambda_values: list[float],
+    n: int,
+    F_max_factor: float,
+    outdir: Path,
+) -> None:
+    outdir.mkdir(parents=True, exist_ok=True)
+    for lambda_value in lambda_values:
+        params = solve_weibull_parameters(peak, lambda_value)
+        curve = stress_strain_curve(peak, lambda_value, params, n=n, F_max_factor=F_max_factor)
+        file_name = f"curve_lambda_{str(lambda_value).replace('.', '_')}.csv"
+        save_curve_csv(curve, outdir / file_name)
+        print(f"Saved {file_name}")
+
+
+
+def main() -> None:
+    args = parse_args()
+    peak = peak_from_args(args)
+    project_dir = Path(args.outdir).resolve() if args.outdir else Path(__file__).resolve().parent
+
+    if args.mode == "demo":
+        build_demo_outputs(project_dir, peak)
+        print(f"Demo outputs written to: {project_dir}")
+        run_solve_mode(peak, args.lambda_values)
+    elif args.mode == "solve":
+        run_solve_mode(peak, args.lambda_values)
+    elif args.mode == "curve":
+        run_curve_mode(peak, args.lambda_values, args.curve_points, args.curve_max_factor, project_dir)
+
 
 if __name__ == "__main__":
-    project_dir = Path(__file__).resolve().parent
-    build_demo_outputs(project_dir)
-    demo_peak = PeakState(E=15000.0, nu=0.25, sigma3=0.0, sigma1c=35.0, epsilon1c=0.004, phi_deg=35.0)
-    for lambda_value in [0.9293, 0.9906, 0.6578]:
-        params = solve_weibull_parameters(demo_peak, lambda_value)
-        print(f"lambda={lambda_value:.4f} -> m={params.m:.4f}, F0={params.F0:.4f} MPa")
-    print("Demo outputs written to:", project_dir)
+    main()
