@@ -1,0 +1,41 @@
+{
+  "cube_size_cm": 10.0,
+  "target_spacing_cm": 0.5,
+  "seed": 2026,
+  "crack_count": 40,
+  "sampled_point_count": 9097,
+  "box_divisions": [
+    4,
+    5,
+    6,
+    8,
+    10,
+    12,
+    16,
+    20
+  ],
+  "capacity_dimension_D0": 2.2239409482291825,
+  "relative_dimension_lambda": 0.7413136494097275,
+  "spectrum_width": 2.566830784326864,
+  "all_q_windows_passed": false,
+  "table1_crack_sets": [
+    {
+      "set_id": 1,
+      "direction": 2.7,
+      "direction_var": 145.9,
+      "dip": 75.7,
+      "dip_var": 359.9,
+      "length": 4.0,
+      "length_var": 37.0
+    },
+    {
+      "set_id": 2,
+      "direction": 340.7,
+      "direction_var": 419.3,
+      "dip": 34.0,
+      "dip_var": 106.8,
+      "length": 6.29,
+      "length_var": 8.75
+    }
+  ]
+}
