@@ -1,0 +1,3 @@
+figure,varied_quantity,series_values,confirmed_from_image,limitation
+6,m,"1.8;2.0;2.2;2.4;2.6",yes,"fixed E/F0/lambda not printed in supplied crop"
+7,F0_or_spacing,"1.9;1.7;1.5;1.3;1.1",partial,"caption says F0 but legend says spacing in cm; exact F0 mapping is unavailable"
