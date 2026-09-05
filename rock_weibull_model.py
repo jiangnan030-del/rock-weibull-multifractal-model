@@ -82,13 +82,25 @@ def mohr_coulomb_microelement_strength(
 def solve_weibull_parameters(peak: PeakState, lambda_value: float) -> WeibullParameters:
     """Solve m and F0 from equations (19) and (18).
 
-    A physical Weibull solution requires 0 < lambda < 1 and 0 < R < 1,
+    A physical Weibull solution requires 0 < lambda <= 1 and 0 < R < 1,
     where R is the logarithm argument in equation (18).
     """
-    if not 0.0 < lambda_value < 1.0:
-        raise ValueError("lambda must satisfy 0 < lambda < 1")
+    if peak.E <= 0.0 or peak.epsilon1c <= 0.0:
+        raise ValueError("E and epsilon1c must be positive")
+    if not 0.0 <= peak.nu < 0.5:
+        raise ValueError("nu must satisfy 0 <= nu < 0.5")
+    if not 0.0 <= peak.phi_deg < 90.0:
+        raise ValueError("phi_deg must satisfy 0 <= phi_deg < 90")
+    if not 0.0 < lambda_value <= 1.0:
+        raise ValueError("lambda must satisfy 0 < lambda <= 1")
 
     numerator = peak.sigma1c - 2.0 * peak.nu * peak.sigma3
+    if numerator <= 0.0:
+        raise ValueError("sigma1c - 2*nu*sigma3 must be positive")
+    phi = math.radians(peak.phi_deg)
+    strength_factor = (peak.sigma1c - peak.sigma3) - (peak.sigma1c + peak.sigma3) * math.sin(phi)
+    if strength_factor <= 0.0:
+        raise ValueError("peak Mohr-Coulomb strength factor must be positive")
     denom = numerator + (lambda_value - 1.0) * peak.E * peak.epsilon1c
     if abs(denom) < 1e-12:
         raise ZeroDivisionError("Equation denominator is too close to zero")

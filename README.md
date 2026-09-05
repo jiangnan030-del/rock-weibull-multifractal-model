@@ -113,7 +113,7 @@ $$
 容量维对应的相对分形参数为：
 
 $$
-\lambda=\frac{D_0}{3},\qquad 0<\lambda<1
+\lambda=\frac{D_0}{3},\qquad 0\lt\lambda\le 1
 $$
 
 程序对连续尺度窗口分别拟合 $\sum_i\mu_i\ln p_i$ 和 $\sum_i\mu_i\ln\mu_i$ 关于 $\ln r$ 的直线。默认要求两个相关系数的绝对值均不低于 0.95；没有窗口通过时，结果会明确标记 `threshold_passed=false`。
@@ -220,13 +220,46 @@ $$
 F_0=\frac{F_c}{[-\ln R]^{1/m}}
 $$
 
+为明确物理解的输入范围，定义：
+
+$$
+A=\sigma_{1c}-2\nu\sigma_3,\qquad
+B=A+(\lambda-1)E\varepsilon_{1c}
+$$
+
+$$
+Q=(\sigma_{1c}-\sigma_3)-(\sigma_{1c}+\sigma_3)\sin\varphi
+$$
+
 物理解要求：
 
 $$
-0<\lambda<1,\qquad 0<R<1,\qquad m>0,\qquad F_0>0
+E\gt0,\quad \varepsilon_{1c}\gt0,\quad 0\lt\lambda\le1
 $$
 
-> 原文交替使用 $v$ 和 $\nu$，本仓库统一使用 `nu` 表示泊松比。
+$$
+0\le\nu\lt0.5,\quad 0\le\varphi\lt90^\circ
+$$
+
+$$
+A\gt0,\quad B\gt0,\quad Q\gt0,\quad 0\lt R\lt1
+$$
+
+在这些输入条件下，$F_c\gt0$，求解结果应满足：
+
+$$
+m\gt0,\qquad F_0\gt0
+$$
+
+由于 $E\varepsilon_{1c}\lambda\gt0$，$0\lt R\lt1$ 等价于：
+
+$$
+(1-\lambda)E\varepsilon_{1c}
+\lt \sigma_{1c}-2\nu\sigma_3
+\lt E\varepsilon_{1c}
+$$
+
+> 论文正文采用 $0\lt\lambda\lt1$。从 $\lambda=D_0/3$ 和反演公式的定义域看，$\lambda=1$ 可作为 $D_0=3$ 的极限情形；本仓库允许该边界值，但仍要求 $0\lt R\lt1$。原文交替使用 $v$ 和 $\nu$，本仓库统一使用 `nu`。
 
 ## 数据与主要文件
 
