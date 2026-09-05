@@ -189,23 +189,22 @@ $$
 对本构式求导：
 
 $$
-\begin{aligned}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-={}&E\{\lambda e^{-(F/F_0)^m}+1-\lambda\}\\
-&+E\varepsilon_1\lambda e^{-(F/F_0)^m}
-\left(-\frac{mF^{m-1}}{F_0^m}\right)\\
-&\times\{
-\frac{E[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi]}
+=E\{\lambda e^{-(F/F_0)^m}+1-\lambda\}
++E\varepsilon_1\lambda e^{-(F/F_0)^m}
+\left(-\frac{mF^{m-1}}{F_0^m}\right) \cdot S
+$$
+
+其中
+
+$$
+S=\frac{E[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi]}
 {\sigma_1-2\nu\sigma_3}
 +\frac{E\varepsilon_1(1-\sin\varphi)}{\sigma_1-2\nu\sigma_3}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-\\
-&\qquad
 -\frac{E\varepsilon_1[(\sigma_1-\sigma_3)-(\sigma_1+\sigma_3)\sin\varphi]}
 {(\sigma_1-2\nu\sigma_3)^2}
 \frac{\partial\sigma_1}{\partial\varepsilon_1}
-\}.
-\end{aligned}
 $$
 
 峰值点满足：
